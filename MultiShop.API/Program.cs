@@ -1,0 +1,65 @@
+using MultiShop.API.DataAccess;
+//using microsoft.aspnetcore.authentication.jwtbearer;
+//using Microsoft.IdentityModel.Tokens;
+
+var builder = WebApplication.CreateBuilder(args);
+
+//Add CORS 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+        });
+});
+//var builder = WebApplication.CreateBuilder(args);
+
+//builder.Authentication.AddJwtBearer(); // New property
+
+//var app = builder.Build();
+
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
+//{
+//    x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+//    {
+//        ValidateIssuer = true,
+//        ValidateAudience = true,
+//        ValidateLifetime = true,
+//        ValidateIssuerSigningKey = true,
+//        ValidIssuer = "localhost",
+//        ValidAudience = "localhost",
+//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MNU66iBl3T5rh6H52i69")),
+//        ClockSkew = TimeSpan.Zero
+//    };
+//});
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<IDataAccess,DataAccess>();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.UseCors(MyAllowSpecificOrigins);
+
+app.MapControllers();
+
+app.Run();
